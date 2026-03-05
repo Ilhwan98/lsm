@@ -4,23 +4,11 @@ import streamlit as st
 
 st.markdown("""
 <style>
-
-/* Hide Streamlit footer */
-footer {visibility: hidden;}
-
-/* Hide Streamlit hamburger menu */
 #MainMenu {visibility: hidden;}
-
-/* Hide deploy / GitHub toolbar */
-[data-testid="stDecoration"] {
-    display: none;
-}
-
-/* Hide bottom-right floating buttons */
-button[kind="secondary"] {
-    display: none;
-}
-
+footer {visibility: hidden;}
+header {visibility: hidden;}
+[data-testid="stToolbar"] {display: none;}
+[data-testid="stDecoration"] {display: none;}
 </style>
 """, unsafe_allow_html=True)
 
