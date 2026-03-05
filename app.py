@@ -2,15 +2,19 @@ import os
 import streamlit as st
 
 
-st.markdown("""
-<style>
-#MainMenu {visibility: hidden;}
-footer {visibility: hidden;}
-header {visibility: hidden;}
-[data-testid="stToolbar"] {display: none;}
-[data-testid="stDecoration"] {display: none;}
-</style>
-""", unsafe_allow_html=True)
+st.markdown(
+    """
+    <style>
+    /* This targets the specific GitHub icon link container in the main menu */
+    [data-testid="stHeader"] .css-1jc7ptx, 
+    [data-testid="stHeader"] .css-1oe5kzh {
+        display: none !important;
+    }
+    </style>
+    """,
+    unsafe_allow_html=True
+)
+
 
 
 st.set_page_config(page_title="LSM App Log In", layout="centered")
