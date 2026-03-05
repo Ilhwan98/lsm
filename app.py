@@ -42,3 +42,25 @@ st.write("앱을 설치할 예정입니다!")
 
 # Example protected content
 st.button("Create OS Tracker")
+
+st.markdown("""
+<style>
+
+/* Hide Streamlit footer */
+footer {visibility: hidden;}
+
+/* Hide Streamlit hamburger menu */
+#MainMenu {visibility: hidden;}
+
+/* Hide deploy / GitHub toolbar */
+[data-testid="stDecoration"] {
+    display: none;
+}
+
+/* Hide bottom-right floating buttons */
+button[kind="secondary"] {
+    display: none;
+}
+
+</style>
+""", unsafe_allow_html=True)
