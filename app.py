@@ -51,11 +51,40 @@ if not st.session_state.logged_in:
     st.stop()
 
 # --- Your app content after login ---
+st.sidebar.success(f"✅ Logged in as {st.session_state.get('user','admin')}")
 st.sidebar.button("Log out", on_click=logout)
 
 st.title("👋 안녕하세요! LSM 웹입니다!")
-st.write("앱을 설치할 예정입니다!")
+st.caption("원하는 기능을 선택하세요.")
 
-# Example protected content
-st.button("Create OS Tracker")
+col1, col2, col3 = st.columns(3)
+
+with col1:
+    if st.button("📦 Create OS Tracker", use_container_width=True):
+        st.session_state.page = "os"
+
+with col2:
+    if st.button("📊 View Reports", use_container_width=True):
+        st.session_state.page = "reports"
+
+with col3:
+    if st.button("⚙️ Settings", use_container_width=True):
+        st.session_state.page = "settings"
+
+if "page" not in st.session_state:
+    st.session_state.page = "os"
+
+st.divider()
+
+if st.session_state.page == "os":
+    st.subheader("📦 OS Tracker")
+    st.write("OS Tracker content here…")
+
+elif st.session_state.page == "reports":
+    st.subheader("📊 Reports")
+    st.write("Reports content here…")
+
+elif st.session_state.page == "settings":
+    st.subheader("⚙️ Settings")
+    st.write("Settings here…")
 
