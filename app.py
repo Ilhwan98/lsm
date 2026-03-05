@@ -9,47 +9,21 @@ def logout():
     st.session_state.logged_in = False
 
 def login_form():
+    st.title("🚚 슈피겐 LSM Website")
+    st.write("Please log in")
 
-    st.markdown(
-        """
-        <style>
-        .login-container {
-            background-color: #f8f9fa;
-            padding: 2rem;
-            border-radius: 10px;
-            box-shadow: 0px 0px 15px rgba(0,0,0,0.1);
-        }
-        </style>
-        """,
-        unsafe_allow_html=True
-    )
+    with st.form("login"):
+        username = st.text_input("Username")
+        password = st.text_input("Password", type="password")
+        submitted = st.form_submit_button("Log in")
 
-    col1, col2, col3 = st.columns([1,2,1])
-
-    with col2:
-
-        st.markdown("""
-        <div class="login-container">
-            <div class="login-title">🚚 슈파센 LSM Website</div>
-            <div class="login-subtitle">로그인을 해주세요</div>
-        """, unsafe_allow_html=True)
-
-        with st.form("login"):
-
-            username = st.text_input("Username")
-            password = st.text_input("Password", type="password")
-
-            submitted = st.form_submit_button("Log in")
-
-            if submitted:
-                if username == "admin" and password == APP_PASSWORD:
-                    st.session_state.logged_in = True
-                    st.success("Logged in!")
-                    st.rerun()
-                else:
-                    st.error("Invalid username or password")
-
-        st.markdown("</div>", unsafe_allow_html=True)
+        if submitted:
+            if username == "admin" and  password == APP_PASSWORD:
+                st.session_state.logged_in = True
+                st.success("Logged in!")
+                st.rerun()
+            else:
+                st.error("Invalid username or password")
 
 # Initialize session flag
 if "logged_in" not in st.session_state:
