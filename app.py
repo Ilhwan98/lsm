@@ -28,10 +28,11 @@ def login_form():
 
     with col2:
 
-        st.markdown("<div class='login-container'>", unsafe_allow_html=True)
-
-        st.title("🚚 슈파갠 LSM Website")
-        st.write("로그인을 해주세요")
+        st.markdown("""
+        <div class="login-container">
+            <div class="login-title">🚚 슈파센 LSM Website</div>
+            <div class="login-subtitle">로그인을 해주세요</div>
+        """, unsafe_allow_html=True)
 
         with st.form("login"):
 
