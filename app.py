@@ -1,6 +1,30 @@
 import os
 import streamlit as st
 
+
+st.markdown("""
+<style>
+
+/* Hide Streamlit footer */
+footer {visibility: hidden;}
+
+/* Hide Streamlit hamburger menu */
+#MainMenu {visibility: hidden;}
+
+/* Hide deploy / GitHub toolbar */
+[data-testid="stDecoration"] {
+    display: none;
+}
+
+/* Hide bottom-right floating buttons */
+button[kind="secondary"] {
+    display: none;
+}
+
+</style>
+""", unsafe_allow_html=True)
+
+
 st.set_page_config(page_title="LSM App Log In", layout="centered")
 
 APP_PASSWORD = os.getenv("admin", "Spigen4545")
@@ -43,24 +67,3 @@ st.write("앱을 설치할 예정입니다!")
 # Example protected content
 st.button("Create OS Tracker")
 
-st.markdown("""
-<style>
-
-/* Hide Streamlit footer */
-footer {visibility: hidden;}
-
-/* Hide Streamlit hamburger menu */
-#MainMenu {visibility: hidden;}
-
-/* Hide deploy / GitHub toolbar */
-[data-testid="stDecoration"] {
-    display: none;
-}
-
-/* Hide bottom-right floating buttons */
-button[kind="secondary"] {
-    display: none;
-}
-
-</style>
-""", unsafe_allow_html=True)
