@@ -4,11 +4,36 @@ import streamlit as st
 
 st.markdown("""
 <style>
+
+/* Hide Streamlit menu and footer */
 #MainMenu {visibility: hidden;}
 footer {visibility: hidden;}
 header {visibility: hidden;}
-[data-testid="stToolbar"] {display: none;}
-[data-testid="stDecoration"] {display: none;}
+
+/* Hide Streamlit toolbar */
+[data-testid="stToolbar"] {
+    display: none;
+}
+
+/* Hide Streamlit decoration / deploy badge */
+[data-testid="stDecoration"] {
+    display: none !important;
+}
+
+/* Hide floating feedback / GitHub buttons */
+button[title="Open feedback dialog"] {
+    display: none !important;
+}
+
+button[title="View source on GitHub"] {
+    display: none !important;
+}
+
+/* Hide any floating bottom-right buttons */
+.stApp > div:last-child {
+    display: none !important;
+}
+
 </style>
 """, unsafe_allow_html=True)
 
