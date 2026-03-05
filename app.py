@@ -37,7 +37,7 @@ if not st.session_state.logged_in:
 # --- Your app content after login ---
 st.sidebar.button("Log out", on_click=logout)
 
-st.title("👋 안녕하세요! 에레셈 왭입니다!")
+st.title("👋 안녕하세요! LSM 웹입니다!")
 st.write("앱을 설치할 예정입니다!")
 
 # Example protected content
