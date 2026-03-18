@@ -73,17 +73,17 @@ if "page" not in st.session_state:
 
 st.divider()
 
-if st.session_state.page == "os":
-    st.subheader("📦 OS Tracker")
-    st.write("OS Tracker content here…")
+# if st.session_state.page == "os":
+#     st.subheader("📦 OS Tracker")
+#     st.write("OS Tracker content here…")
 
-elif st.session_state.page == "reports":
-    st.subheader("📊 Reports")
-    st.write("Reports content here…")
+# elif st.session_state.page == "reports":
+#     st.subheader("📊 Reports")
+#     st.write("Reports content here…")
 
-elif st.session_state.page == "settings":
-    st.subheader("⚙️ Settings")
-    st.write("Settings here…")
+# elif st.session_state.page == "settings":
+#     st.subheader("⚙️ Settings")
+#     st.write("Settings here…")
 
 if st.button("Run Commercial Invoice"):
     result = subprocess.run(
