@@ -21,7 +21,7 @@ st.set_page_config(page_title="LSM App Log In", layout="centered")
 
 APP_PASSWORD = os.getenv("admin", "Spigen4545")
 GITHUB_TOKEN = os.getenv("GITHUB_TOKEN")
-GITHUB_REPO = os.getenv("Ilhwan98/lsm")         
+GITHUB_REPO = os.getenv("GITHUB_REPO")         
 GITHUB_WORKFLOW = os.getenv("GITHUB_WORKFLOW", "run_invoice.yml")
 GITHUB_REF = os.getenv("GITHUB_REF", "main")
 
