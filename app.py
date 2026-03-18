@@ -118,21 +118,21 @@ def trigger_github_workflow():
     response = requests.post(url, headers=headers, json=payload, timeout=30)
 
     if response.status_code == 204:
-        return True, "GitHub Actions workflow triggered successfully."
+        return True, "캐나다 인보이스 스크립트 실행 중"
     return False, f"{response.status_code}: {response.text}"
 
 
 if st.session_state.page == "os":
-    st.subheader("📦 OS Tracker")
-    st.write("OS Tracker content here…")
+    st.subheader("Canada Billing Invoice")
+    # st.write("실행 버튼")
 
-    if st.button("🚀 Run Commercial Invoice", use_container_width=True):
-        with st.spinner("Triggering cloud job..."):
+    if st.button("실행 버튼", use_container_width=True):
+        with st.spinner("🏃 실행중..."):
             ok, message = trigger_github_workflow()
 
         if ok:
             st.success(message)
-            st.info("The script is now running on GitHub Actions, even if your computer is off.")
+            st.info("실행 완료!")
         else:
-            st.error("Failed to trigger workflow")
+            st.error("스크립트 에러")
             st.code(message)
