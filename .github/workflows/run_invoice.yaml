@@ -1,0 +1,25 @@
+name: Run Commercial Invoice Script
+
+on:
+  workflow_dispatch:   # manual trigger only
+
+jobs:
+  run-script:
+    runs-on: ubuntu-latest
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+
+      - run: pip install -r requirements.txt
+
+      - name: Write credentials
+        env:
+          GOOGLE_SERVICE_ACCOUNT_JSON: ${{ secrets.GOOGLE_SERVICE_ACCOUNT_JSON }}
+        run: echo "$GOOGLE_SERVICE_ACCOUNT_JSON" > service_account.json
+
+      - name: Run script
+        run: python TCC-commercial_invoice_cloud.py
