@@ -1,7 +1,7 @@
 name: Run Commercial Invoice Script
 
 on:
-  workflow_dispatch:   # manual trigger only
+  workflow_dispatch:   
 
 jobs:
   run-script:

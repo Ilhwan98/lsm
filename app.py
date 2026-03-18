@@ -1,6 +1,6 @@
 import os
 import streamlit as st
-import subprocess
+import requests
 
 # st.markdown(
 #     """
@@ -20,6 +20,16 @@ import subprocess
 st.set_page_config(page_title="LSM App Log In", layout="centered")
 
 APP_PASSWORD = os.getenv("admin", "Spigen4545")
+GITHUB_TOKEN = os.getenv("GITHUB_TOKEN")
+GITHUB_REPO = os.getenv("Ilhwan98/lsm")         
+GITHUB_WORKFLOW = os.getenv("GITHUB_WORKFLOW", "run_invoice.yml")
+GITHUB_REF = os.getenv("GITHUB_REF", "main")
+
+
+
+
+
+
 
 def logout():
     st.session_state.logged_in = False
@@ -85,16 +95,44 @@ st.divider()
 #     st.subheader("⚙️ Settings")
 #     st.write("Settings here…")
 
-if st.button("Run Commercial Invoice"):
-    result = subprocess.run(
-        ["python", "TCC-commercial_invoice_cloud.py"],
-        capture_output=True,
-        text=True
-    )
 
-    if result.returncode == 0:
-        st.success("Script ran successfully")
-        st.text(result.stdout)
-    else:
-        st.error("Script failed")
-        st.text(result.stderr)
+
+
+def trigger_github_workflow():
+    if not GITHUB_TOKEN:
+        return False, "Missing GITHUB_TOKEN"
+    if not GITHUB_REPO:
+        return False, "Missing GITHUB_REPO"
+
+    url = f"https://api.github.com/repos/{GITHUB_REPO}/actions/workflows/{GITHUB_WORKFLOW}/dispatches"
+
+    headers = {
+        "Authorization": f"Bearer {GITHUB_TOKEN}",
+        "Accept": "application/vnd.github+json",
+    }
+
+    payload = {
+        "ref": GITHUB_REF
+    }
+
+    response = requests.post(url, headers=headers, json=payload, timeout=30)
+
+    if response.status_code == 204:
+        return True, "GitHub Actions workflow triggered successfully."
+    return False, f"{response.status_code}: {response.text}"
+
+
+if st.session_state.page == "os":
+    st.subheader("📦 OS Tracker")
+    st.write("OS Tracker content here…")
+
+    if st.button("🚀 Run Commercial Invoice", use_container_width=True):
+        with st.spinner("Triggering cloud job..."):
+            ok, message = trigger_github_workflow()
+
+        if ok:
+            st.success(message)
+            st.info("The script is now running on GitHub Actions, even if your computer is off.")
+        else:
+            st.error("Failed to trigger workflow")
+            st.code(message)

@@ -2,12 +2,10 @@ import os
 import io
 import json
 from datetime import datetime
-
 import pandas as pd
 import pdfplumber
 import openpyxl
 from httplib2 import Http
-
 from google.oauth2.service_account import Credentials
 from googleapiclient.discovery import build
 from googleapiclient.http import MediaIoBaseDownload, MediaFileUpload
