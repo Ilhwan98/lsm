@@ -1,19 +1,19 @@
 import os
 import streamlit as st
+import subprocess
 
-
-st.markdown(
-    """
-    <style>
-    /* This targets the specific GitHub icon link container in the main menu */
-    [data-testid="stHeader"] .css-1jc7ptx, 
-    [data-testid="stHeader"] .css-1oe5kzh {
-        display: none !important;
-    }
-    </style>
-    """,
-    unsafe_allow_html=True
-)
+# st.markdown(
+#     """
+#     <style>
+#     /* This targets the specific GitHub icon link container in the main menu */
+#     [data-testid="stHeader"] .css-1jc7ptx, 
+#     [data-testid="stHeader"] .css-1oe5kzh {
+#         display: none !important;
+#     }
+#     </style>
+#     """,
+#     unsafe_allow_html=True
+# )
 
 
 
@@ -41,16 +41,13 @@ def login_form():
             else:
                 st.error("Invalid username or password")
 
-# Initialize session flag
 if "logged_in" not in st.session_state:
     st.session_state.logged_in = False
 
-# --- Gate ---
 if not st.session_state.logged_in:
     login_form()
     st.stop()
 
-# --- Your app content after login ---
 st.sidebar.success(f"✅ Logged in as {st.session_state.get('user','admin')}")
 st.sidebar.button("Log out", on_click=logout)
 
@@ -88,3 +85,16 @@ elif st.session_state.page == "settings":
     st.subheader("⚙️ Settings")
     st.write("Settings here…")
 
+if st.button("Run Commercial Invoice"):
+    result = subprocess.run(
+        ["python", "TCC-commercial_invoice_cloud.py"],
+        capture_output=True,
+        text=True
+    )
+
+    if result.returncode == 0:
+        st.success("Script ran successfully")
+        st.text(result.stdout)
+    else:
+        st.error("Script failed")
+        st.text(result.stderr)
