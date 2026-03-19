@@ -5,13 +5,13 @@ import time
 from datetime import datetime, timedelta
 import pandas as pd
 import pdfplumber
-import openpyxl
 from httplib2 import Http
 from openpyxl.styles import PatternFill, Font, Alignment, Border, Side
 from google.oauth2.service_account import Credentials
 from googleapiclient.discovery import build
 from googleapiclient.http import MediaIoBaseDownload, MediaFileUpload
-import streamlit as st
+from google.oauth2 import service_account
+import openpyxl
 
 
 SCOPES = ["https://www.googleapis.com/auth/drive"]
@@ -33,8 +33,9 @@ os.makedirs(DOWNLOAD_DIR, exist_ok=True)
 os.makedirs(OUTPUT_DIR, exist_ok=True)
 
 def get_drive_service():
-    creds = Credentials.from_service_account_file(
-        SERVICE_ACCOUNT_FILE, scopes=SCOPES
+    creds = service_account.Credentials.from_service_account_file(
+        SERVICE_ACCOUNT_FILE,
+        scopes=SCOPES
     )
     return build("drive", "v3", credentials=creds)
 
@@ -48,9 +49,8 @@ def list_drive_files(service, query):
             q=query,
             fields="nextPageToken, files(id, name, mimeType)",
             pageToken=page_token,
-            pageSize=1000,
             supportsAllDrives=True,
-            includeItemsFromAllDrives=True,
+            includeItemsFromAllDrives=True
         ).execute()
 
         files.extend(response.get("files", []))
@@ -83,58 +83,120 @@ def list_files_in_folder(service, folder_id):
     query = f"'{folder_id}' in parents and trashed=false"
     return list_drive_files(service, query)
 
-if st.button("Test Billing Folder"):
-    try:
-        today_date = datetime.now().strftime("%m%d%y")
+def download_drive_file(service, file_id, destination):
+    request = service.files().get_media(fileId=file_id, supportsAllDrives=True)
 
-        st.write("Today date:", today_date)
-
-        service = get_drive_service()
-        billing_folder = find_today_billing_folder(service, SOURCE_FOLDER_ID, today_date)
-
-        if not billing_folder:
-            st.error(f"No folder found starting with '{today_date} Billing'")
-        else:
-            st.success(f"Found folder: {billing_folder['name']}")
-            st.write("Folder ID:", billing_folder["id"])
-
-            files = list_files_in_folder(service, billing_folder["id"])
-
-            if not files:
-                st.warning("Folder is empty")
-            else:
-                st.subheader("Files inside billing folder")
-                for f in files:
-                    st.write(f"- {f['name']} ({f['mimeType']})")
-
-    except Exception as e:
-        st.error(f"Error: {e}")
-
-if st.button("Test Billing Folder"):
-    try:
-        today_date = datetime.now().strftime("%m%d%y")
-
-        st.write("Today date:", today_date)
-
-        service = get_drive_service()
-        billing_folder = find_today_billing_folder(service, SOURCE_FOLDER_ID, today_date)
-
-        if not billing_folder:
-            st.error(f"No folder found starting with '{today_date} Billing'")
-        else:
-            st.success(f"Found folder: {billing_folder['name']}")
-            st.write("Folder ID:", billing_folder["id"])
-
-            files = list_files_in_folder(service, billing_folder["id"])
-
-            if not files:
-                st.warning("Folder is empty")
-            else:
-                st.subheader("Files inside billing folder")
-                for f in files:
-                    st.write(f"- {f['name']} ({f['mimeType']})")
-
-    except Exception as e:
-        st.error(f"Error: {e}")
+    with open(destination, "wb") as f:
+        downloader = MediaIoBaseDownload(f, request)
+        done = False
+        while not done:
+            _, done = downloader.next_chunk()
 
 
+def download_ent_pdfs(service, billing_folder_id):
+    print("📥 Downloading PDFs...")
+
+    sheet_names = []
+
+    items = list_drive_files(service, f"'{billing_folder_id}' in parents")
+
+    for item in items:
+        if item["mimeType"] == "application/vnd.google-apps.folder" and item["name"].startswith("SEE"):
+            print("📂 SEE folder:", item["name"])
+            sheet_names.append(item["name"])
+
+            files = list_drive_files(service, f"'{item['id']}' in parents")
+
+            for f in files:
+                if f["name"].endswith(".ENT.pdf"):
+                    path = os.path.join(DOWNLOAD_DIR, f"{item['name']}_{f['name']}")
+                    print("⬇️ Downloading:", f["name"])
+                    download_drive_file(service, f["id"], path)
+
+    return sheet_names
+
+
+def extract_pdf_to_csv(pdf_path, csv_path):
+    tables = []
+
+    with pdfplumber.open(pdf_path) as pdf:
+        for page in pdf.pages:
+            table = page.extract_table()
+            if table:
+                tables.extend(table)
+
+    if not tables:
+        print("⚠️ No tables found:", pdf_path)
+        return False
+
+    max_cols = max(len(row) for row in tables)
+    rows = [row + [""] * (max_cols - len(row)) for row in tables]
+
+    df = pd.DataFrame(rows[1:], columns=rows[0])
+    df.to_csv(csv_path, index=False)
+
+    return True
+
+def process_csv_to_excel(sheet, csv_path):
+    df = pd.read_csv(csv_path)
+
+    for r, row in df.iterrows():
+        for c, value in enumerate(row, start=1):
+            sheet.cell(row=r+1, column=c, value=str(value))
+
+
+def upload_drive_file(service, file_path, filename):
+    print("📤 Uploading file...")
+
+    media = MediaFileUpload(file_path, resumable=True)
+
+    file_metadata = {
+        "name": filename,
+        "parents": [TARGET_FOLDER_ID]
+    }
+
+    file = service.files().create(
+        body=file_metadata,
+        media_body=media,
+        fields="id, name",
+        supportsAllDrives=True
+    ).execute()
+
+    print("✅ Uploaded:", file["name"])
+    return file
+
+def run():
+    print("🚀 SCRIPT STARTED")
+
+    service = get_drive_service()
+
+    billing_folder = find_today_billing_folder(service)
+    if not billing_folder:
+        raise Exception("Billing folder not found")
+
+    sheet_names = download_ent_pdfs(service, billing_folder["id"])
+
+    wb = openpyxl.Workbook()
+    wb.remove(wb.active)
+
+    for name in sheet_names:
+        sheet = wb.create_sheet(name)
+
+        for file in os.listdir(DOWNLOAD_DIR):
+            if file.startswith(name) and file.endswith(".pdf"):
+                pdf_path = os.path.join(DOWNLOAD_DIR, file)
+                csv_path = pdf_path.replace(".pdf", ".csv")
+
+                if extract_pdf_to_csv(pdf_path, csv_path):
+                    process_csv_to_excel(sheet, csv_path)
+
+    output_file = os.path.join(OUTPUT_DIR, f"{today_date}_invoice.xlsx")
+    wb.save(output_file)
+
+    upload_drive_file(service, output_file, os.path.basename(output_file))
+
+    print("🎉 DONE")
+
+
+if __name__ == "__main__":
+    run()
