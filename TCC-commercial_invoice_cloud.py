@@ -17,8 +17,8 @@ import openpyxl
 SCOPES = ["https://www.googleapis.com/auth/drive"]
 SERVICE_ACCOUNT_FILE = "service_account.json"
 
-SOURCE_FOLDER_ID = os.getenv("1PvY8NIMx_zblcDHFS_lJxtmJfvO-WThi")
-TARGET_FOLDER_ID = os.getenv("1GzldiMuVpez2yJnU9yAFs-p1fUhH__Vu")
+SOURCE_FOLDER_ID = os.getenv("GOOGLE_DRIVE_SOURCE_FOLDER_ID")
+TARGET_FOLDER_ID = os.getenv("GOOGLE_DRIVE_TARGET_FOLDER_ID")
 ERROR_URL = os.getenv("https://chat.googleapis.com/v1/spaces/AAAAdp2-7rc/messages?key=AIzaSyDdI0hCZtE6vySjMm-WEfRq3CPzqKqqsHI&token=BVhGARAAbgjqHRJVQz-NIoIPO_IgcIYcdATwu1v9bEw")
 
 today = datetime.now()
