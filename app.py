@@ -99,27 +99,32 @@ st.divider()
 
 
 def trigger_github_workflow():
-    if not GITHUB_TOKEN:
-        return False, "Missing GITHUB_TOKEN"
-    if not GITHUB_REPO:
-        return False, "Missing GITHUB_REPO"
+    try:
+        token = st.secrets["GITHUB_TOKEN"]
+        repo = st.secrets["GITHUB_REPO"]
+        workflow = st.secrets.get("GITHUB_WORKFLOW", "run_invoice.yaml")
+        ref = st.secrets.get("GITHUB_REF", "main")
 
-    url = f"https://api.github.com/repos/{GITHUB_REPO}/actions/workflows/{GITHUB_WORKFLOW}/dispatches"
+        url = f"https://api.github.com/repos/{repo}/actions/workflows/{workflow}/dispatches"
 
-    headers = {
-        "Authorization": f"Bearer {GITHUB_TOKEN}",
-        "Accept": "application/vnd.github+json",
-    }
+        headers = {
+            "Authorization": f"Bearer {token}",
+            "Accept": "application/vnd.github+json"
+        }
 
-    payload = {
-        "ref": GITHUB_REF
-    }
+        data = {
+            "ref": ref
+        }
 
-    response = requests.post(url, headers=headers, json=payload, timeout=30)
+        response = requests.post(url, headers=headers, json=data)
 
-    if response.status_code == 204:
-        return True, "캐나다 인보이스 스크립트 실행 중"
-    return False, f"{response.status_code}: {response.text}"
+        if response.status_code == 204:
+            return True, "✅ GitHub workflow triggered successfully!"
+        else:
+            return False, f"{response.status_code}: {response.text}"
+
+    except Exception as e:
+        return False, str(e)
 
 
 if st.session_state.page == "os":
