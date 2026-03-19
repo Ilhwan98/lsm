@@ -19,7 +19,13 @@ SERVICE_ACCOUNT_FILE = "service_account.json"
 
 SOURCE_FOLDER_ID = os.getenv("GOOGLE_DRIVE_SOURCE_FOLDER_ID")
 TARGET_FOLDER_ID = os.getenv("GOOGLE_DRIVE_TARGET_FOLDER_ID")
-ERROR_URL = os.getenv("https://chat.googleapis.com/v1/spaces/AAAAdp2-7rc/messages?key=AIzaSyDdI0hCZtE6vySjMm-WEfRq3CPzqKqqsHI&token=BVhGARAAbgjqHRJVQz-NIoIPO_IgcIYcdATwu1v9bEw")
+ERROR_URL = ERROR_URL = os.getenv("ERROR_URL")
+
+if not SOURCE_FOLDER_ID:
+    raise ValueError("Missing GOOGLE_DRIVE_SOURCE_FOLDER_ID")
+if not TARGET_FOLDER_ID:
+    raise ValueError("Missing GOOGLE_DRIVE_TARGET_FOLDER_ID")
+
 
 today = datetime.now()
 today_date = today.strftime("%m%d%y")
