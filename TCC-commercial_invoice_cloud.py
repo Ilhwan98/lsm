@@ -28,7 +28,8 @@ if not TARGET_FOLDER_ID:
 
 
 today = datetime.now()
-today_date = today.strftime("%m%d%y")
+# today_date = today.strftime("%m%d%y")
+today_date = "031826"
 current_date = today
 
 BASE_DIR = os.getcwd()

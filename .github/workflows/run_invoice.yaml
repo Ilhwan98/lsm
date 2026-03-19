@@ -17,7 +17,7 @@ jobs:
           python-version: '3.11'
 
       - name: Install dependencies
-        run: pip install -r requirements.txt
+        run: pip install -r requirements.txtd
 
       - name: Create service account file
         shell: bash
@@ -28,7 +28,7 @@ jobs:
 
       - name: Verify files
         run: ls -l
-      
+
       - name: Run script
         env:
           GOOGLE_DRIVE_SOURCE_FOLDER_ID: ${{ secrets.GOOGLE_DRIVE_SOURCE_FOLDER_ID }}
