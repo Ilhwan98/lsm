@@ -6,7 +6,6 @@ from datetime import datetime, timedelta
 import pandas as pd
 import pdfplumber
 import openpyxl
-import holidays
 from httplib2 import Http
 from openpyxl.styles import PatternFill, Font, Alignment, Border, Side
 from google.oauth2.service_account import Credentials
