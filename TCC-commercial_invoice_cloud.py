@@ -17,8 +17,8 @@ import openpyxl
 SCOPES = ["https://www.googleapis.com/auth/drive"]
 SERVICE_ACCOUNT_FILE = "service_account.json"
 
-SOURCE_FOLDER_ID = os.getenv("GOOGLE_DRIVE_SOURCE_FOLDER_ID")
-TARGET_FOLDER_ID = os.getenv("GOOGLE_DRIVE_TARGET_FOLDER_ID")
+SOURCE_FOLDER_ID = "0ADpFEKicx8LKUk9PVA"
+TARGET_FOLDER_ID = "0ADpFEKicx8LKUk9PVA"
 ERROR_URL = ERROR_URL = os.getenv("ERROR_URL")
 
 if not SOURCE_FOLDER_ID:
@@ -28,8 +28,8 @@ if not TARGET_FOLDER_ID:
 
 
 today = datetime.now()
-# today_date = today.strftime("%m%d%y")
-today_date = "031826"
+today_date = today.strftime("%m%d%y")
+# today_date = "031826"
 current_date = today
 
 BASE_DIR = os.getcwd()
@@ -262,8 +262,7 @@ def read_file(path, csv_filename, count, sheet, ost, newfile_name, error_url=Non
                                 val_tax = float(value3_cell.split("89 Value for Tax")[1].strip().replace(",", ""))
 
                         duty_rate = "0.00%"
-                        if val_duty != 0:
-                            duty_rate = "{:.2f}%".format((customs / val_duty) * 100)
+                        duty_rate = "{:.2f}%".format((customs / val_duty) * 100)
 
                         data.append((country, hsc, exch_rate, val_duty, val_tax, val_currency, customs, gst, duty, duty_rate))
                         info.append(("Exchange Rate: ", str(exch_rate) + "%"))
@@ -289,102 +288,109 @@ def read_file(path, csv_filename, count, sheet, ost, newfile_name, error_url=Non
             data_fin.append(("Duty Rate: ", duty_rate))
             data_fin.append(("Commodity Duty & Tax: ", "${:.2f}".format(duty)))
 
-        border_bot = Border(bottom=Side(style="thin"))
-        border_2bot = Border(bottom=Side(style="double"))
-        border_right = Border(right=Side(style="thin"))
-        border_both = Border(bottom=Side(style="thin"), right=Side(style="thin"))
-        border_2both = Border(bottom=Side(style="double"), right=Side(style="thin"))
+        main_col = ["Info.", "Desc"]
+        right_col = 0
+        border_bot = Border(bottom=Side(style='thin'))
+        border_2bot = Border(bottom=Side(style='double'))
+        border_right = Border(right=Side(style='thin'))
+        border_both = Border(bottom=Side(style='thin'),right=Side(style='thin'))
+        border_2both = Border(bottom=Side(style='double'),right=Side(style='thin'))
         black_fill = PatternFill(start_color="000000", end_color="000000", fill_type="solid")
         yellow_fill = PatternFill(start_color="FFFF00", end_color="FFFF00", fill_type="solid")
         red_font = Font(color="FF0000")
-
-        while len(info) < 8:
-            info.append(("", ""))
-
-        reordered_row_data = [info[0], info[4], info[1], info[2], info[6], info[5], info[3], info[7]]
+        reordered_row_data = [info[0], info[4], info[1],info[2],info[6],info[5],info[3], info[7]]
 
         sheet.merge_cells(start_row=count, start_column=1, end_row=count, end_column=2)
         merged_cell = sheet.cell(row=count, column=1)
         merged_cell.value = title
         merged_cell.border = border_both
         merged_cell.font = Font(bold=True)
-        merged_cell.alignment = Alignment(horizontal="center", vertical="center")
+        merged_cell.alignment = Alignment(horizontal='center', vertical='center')
         merged_cell.fill = yellow_fill
-        sheet.cell(row=count, column=2).border = border_both
+        cell2 = sheet.cell(row=count, column=2)
+        cell2.border = border_both
 
-        trans_row = count + 1
-        for row_idx, row_data in enumerate(reordered_row_data, start=count + 1):
-            row_count = count + 8
-            trans_row = row_count
+        trans_row = count+1
+        for row_idx, row_data in enumerate(reordered_row_data, start=count+1): 
+                row_count = count+8
+                trans_row = row_count
+                for col_idx, value in enumerate(row_data, start=1):  
+                    cell = sheet.cell(row=row_idx, column=col_idx, value=value)
+                    cell.alignment = openpyxl.styles.Alignment(wrap_text=True)
+                    if row_idx == count+ 2 and col_idx==2:
+                        cell.font = red_font
+                    if col_idx == 2:
+                        cell.border = border_right
+                for col_idx in [1, 1]:        
+                    cell = sheet.cell(row=row_count, column=col_idx)
+                    cell.border = border_2bot 
+                for col_idx in [2, 2]:        
+                    cell = sheet.cell(row=row_count, column=col_idx)
+                    cell.border = border_2both 
+        counter = 1
+        for row_idx, row_data in enumerate(data_fin, start=count+9): 
+                row_count = trans_row+(counter)*5
+                black_row = row_count +5
+                for col_idx, value in enumerate(row_data, start=1):  
+                    cell = sheet.cell(row=row_idx, column=col_idx, value=value)
+                    cell.alignment = openpyxl.styles.Alignment(wrap_text=True)
+                    cell.alignment = Alignment(horizontal='left', wrap_text=True)
+                counter += 1
+        test = count +8
 
-            for col_idx, value in enumerate(row_data, start=1):
-                cell = sheet.cell(row=row_idx, column=col_idx, value=value)
-                cell.alignment = openpyxl.styles.Alignment(wrap_text=True)
-                if row_idx == count + 2 and col_idx == 2:
-                    cell.font = red_font
-                if col_idx == 2:
-                    cell.border = border_right
-
-            sheet.cell(row=row_count, column=1).border = border_2bot
-            sheet.cell(row=row_count, column=2).border = border_2both
-
-        for row_idx, row_data in enumerate(data_fin, start=count + 9):
-            for col_idx, value in enumerate(row_data, start=1):
-                cell = sheet.cell(row=row_idx, column=col_idx, value=value)
-                cell.alignment = Alignment(horizontal="left", wrap_text=True)
-
-        end_row = row_idx if data_fin else count + 9
-        test = count + 8
-
-        for current_row in range(test + 1, end_row, 1):
-            for col_idx in range(1, 3):
+        for current_row in range(test+1, row_idx, 1):
+            for col_idx in range(1, 3):  
                 cell = sheet.cell(row=current_row, column=col_idx)
                 if col_idx == 2:
                     cell.border = border_right
+        for current_row in range(test+5, row_idx, 5):  
+            for col_idx in [1, 1]:
+                cell = sheet.cell(row=current_row, column=col_idx)
+                cell.border = border_bot
+                cell = sheet.cell(row=current_row + 5, column=col_idx)
+                cell.border = border_bot
 
-        for current_row in range(test + 5, end_row, 5):
-            sheet.cell(row=current_row, column=1).border = border_bot
-            sheet.cell(row=current_row + 5, column=1).border = border_bot
-            sheet.cell(row=current_row, column=2).border = border_both
-            sheet.cell(row=current_row + 5, column=2).border = border_both
+            for col_idx in [2, 2]:
+                cell = sheet.cell(row=current_row, column=col_idx)
+                cell.border = border_both
+                cell = sheet.cell(row=current_row + 5, column=col_idx)
+                cell.border = border_both
 
-        sheet.cell(row=end_row + 1, column=1).fill = black_fill
-        sheet.cell(row=end_row + 1, column=2).fill = black_fill
-        sheet.cell(row=end_row, column=2).border = border_both
+        for col_idx in [1, 2]:        
+            cell = sheet.cell(row=row_idx+1, column=col_idx)
+            cell.fill = black_fill
+            cell = sheet.cell(row=row_idx, column=2)
+            cell.border = border_both
 
-        count = end_row + 2
-
+        count = row_idx + 2
         for column in sheet.columns:
-            column_cells = [cell for cell in column]
-            try:
-                max_length = max(len(str(cell.value)) for cell in column_cells if cell.value is not None)
-            except ValueError:
-                max_length = 0
-            adjusted_width = max_length + 2
-            if len(column_cells) > 0:
-                sheet.column_dimensions[column_cells[0].column_letter].width = adjusted_width
-
-        full_path = os.path.join(OUTPUT_DIR, newfile_name)
-        ost.save(full_path)
-        return count
+                        max_length = 0
+                        column = [cell for cell in column]
+                        try:
+                            max_length = max(len(str(cell.value)) for cell in column)
+                        except ValueError:
+                            pass
+                        adjusted_width = (max_length + 2)
+                        sheet.column_dimensions[column[1].column_letter].width = adjusted_width
 
     except Exception as e:
         return count_start
 
-def upload_drive_file(service, file_path, filename):
+
+def upload_drive_file(service, file_path, filename, parent_folder_id):
     print("📤 Uploading file...")
 
     media = MediaFileUpload(file_path, resumable=True)
 
     file_metadata = {
         "name": filename,
-        "parents": [TARGET_FOLDER_ID]
+        "parents": [parent_folder_id]
     }
 
     file = service.files().create(
         body=file_metadata,
         media_body=media,
-        fields="id, name",
+        fields="id, name, parents",
         supportsAllDrives=True
     ).execute()
 
@@ -443,7 +449,12 @@ def run():
 
     wb.save(output_file)
 
-    upload_drive_file(service, output_file, os.path.basename(output_file))
+    upload_drive_file(
+        service,
+        output_file,
+        os.path.basename(output_file),
+        billing_folder["id"]
+    )
 
     print("🎉 DONE")
 

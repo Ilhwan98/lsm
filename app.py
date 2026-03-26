@@ -1,7 +1,7 @@
 import os
 import streamlit as st
 import requests
-
+import time
 # st.markdown(
 #     """
 #     <style>
@@ -125,19 +125,61 @@ def trigger_github_workflow():
 
     except Exception as e:
         return False, str(e)
+    
+def get_latest_workflow_run(repo, token):
+    url = "https://api.github.com/repos/llhwan98/lsm/actions/runs?per_page=1"
+
+    headers = {
+        "Authorization": f"Bearer {token}",
+        "Accept": "application/vnd.github+json"
+    }
+
+    response = requests.get(url, headers=headers)
+    data = response.json()
+
+    if "workflow_runs" in data and len(data["workflow_runs"]) > 0:
+        return data["workflow_runs"][0]
+    return None
+
+def wait_for_workflow_completion(repo, token, timeout=120):
+    start_time = time.time()
+
+    while time.time() - start_time < timeout:
+        run = get_latest_workflow_run(repo, token)
+
+        if run:
+            status = run["status"]       # queued, in_progress, completed
+            conclusion = run["conclusion"]  # success, failure, etc.
+
+            if status == "completed":
+                return True, conclusion
+
+        time.sleep(5)  # check every 5 seconds
+
+    return False, "timeout"
 
 
-if st.session_state.page == "os":
-    st.subheader("Canada Billing Invoice")
-    # st.write("실행 버튼")
-
-    if st.button("실행 버튼", use_container_width=True):
-        with st.spinner("🏃 실행중..."):
-            ok, message = trigger_github_workflow()
+if st.button("실행 버튼", use_container_width=True):
+    with st.spinner("🏃 실행중..."):
+        ok, message = trigger_github_workflow()
 
         if ok:
             st.success(message)
-            st.info("실행 완료!")
+
+            # wait for completion
+            repo = st.secrets["GITHUB_REPO"]
+            token = st.secrets["GITHUB_TOKEN"]
+
+            done, result = wait_for_workflow_completion(repo, token)
+
+            if done:
+                if result == "success":
+                    st.success("🎉 Workflow completed successfully!")
+                else:
+                    st.error(f"❌ Workflow failed: {result}")
+            else:
+                st.warning("⏳ Timeout waiting for workflow")
+
         else:
             st.error("스크립트 에러")
             st.code(message)
