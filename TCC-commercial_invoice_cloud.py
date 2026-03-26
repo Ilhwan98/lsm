@@ -372,7 +372,7 @@ def read_file(path, csv_filename, count, sheet, ost, newfile_name, error_url=Non
                             pass
                         adjusted_width = (max_length + 2)
                         sheet.column_dimensions[column[1].column_letter].width = adjusted_width
-
+        return count
     except Exception as e:
         return count_start
 
