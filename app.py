@@ -154,7 +154,7 @@ def wait_for_workflow_completion(repo, token, timeout=120):
             if status == "completed":
                 return True, conclusion
 
-        time.sleep(5)  # check every 5 seconds
+        time.sleep(2)  # check every 5 seconds
 
     return False, "timeout"
 
@@ -178,7 +178,7 @@ if st.button("실행 버튼", use_container_width=True):
                 else:
                     st.error(f"❌ Workflow failed: {result}")
             else:
-                st.warning("⏳ Timeout waiting for workflow")
+                pass
 
         else:
             st.error("스크립트 에러")
